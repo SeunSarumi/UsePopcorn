@@ -57,7 +57,7 @@ const KEY = "74e006a1";
 // App
 //////////////////////////////////////////////////
 export default function App() {
-  const [query, setQuery] = useState("inception");
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [IsLoading, setIsLoading] = useState(false);
@@ -136,6 +136,7 @@ export default function App() {
         setError("");
         return;
       }
+      handleCloseMovie();
       fetchMovies();
 
       return function () {
@@ -312,7 +313,6 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const [userRating, setUserRating] = useState("");
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
-  console.log(isWatched);
 
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedId
@@ -346,6 +346,23 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onCloseMovie();
   }
 
+  // effect for keypress
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+        }
+      }
+      document.addEventListener("keydown", callback);
+
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [onCloseMovie]
+  );
+
   useEffect(
     function () {
       async function getMovieDetails() {
@@ -370,7 +387,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
       // clean up function
       return function () {
         document.title = "usePopcorn";
-        console.log(`clean up effect for movie ${title}`);
+        // console.log(`clean up effect for movie ${title}`);
       };
     },
     [title]
